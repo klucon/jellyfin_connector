@@ -1,14 +1,15 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector",
-  "version": "2025-11-23-005",
+  "version": "2025-11-23-006",
   "description": "Konektor pro přístup k Jellyfin API s volbou přihlášení nebo ručního API klíče",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-  "author": "klucon, panzerman",
+  "author": "klucon, panzerman, ChatGPT",
   "baseUrl": "http://{server}",
   "responseFormat": "json",
+
   "config": {
     "server": {
       "type": "string",
@@ -33,33 +34,47 @@
     },
     "apiKey": {
       "type": "string",
-      "label": "API klíč",
+      "label": "API klíč (pokud nechceš používat login)",
       "required": false
     }
   },
+
   "headers": {
     "X-Emby-Authorization": "MediaBrowser Client=\"Streamlet\", Device=\"Streamlet\", DeviceId=\"streamlet01\", Version=\"1.0.0\""
   },
+
   "auth": {
-    "type": "dynamic",
     "enabledIf": "{useLogin}",
-    "method": "POST",
-    "url": "/Users/AuthenticateByName",
-    "payload": {
-      "Username": "{username}",
-      "Pw": "{password}"
-    },
-    "response": {
-      "mapping": {
-        "apiKey": "AccessToken",
-        "userId": "User.Id"
+    "steps": [
+      {
+        "name": "login",
+        "method": "POST",
+        "url": "/Users/AuthenticateByName",
+        "body": {
+          "Username": "{username}",
+          "Pw": "{password}"
+        },
+        "response": {
+          "store": {
+            "apiKey": "AccessToken",
+            "userId": "User.Id"
+          },
+          "status": {
+            "path": "AccessToken",
+            "states": {
+              "ok": "OK",
+              "error": "LOGIN_FAILED"
+            }
+          }
+        }
       }
-    },
-    "save": ["apiKey", "userId"]
+    ],
+    "storeTokenAs": "apiKey"
   },
+
   "api": [
     {
-      "name": "{movies}",
+      "name": "movies",
       "type": "catalogue_movies",
       "mediaType": "movie",
       "isHome": true,
@@ -77,8 +92,9 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
+
     {
-      "name": "{series}",
+      "name": "series",
       "type": "catalogue_series",
       "mediaType": "series",
       "isHome": true,
@@ -95,115 +111,6 @@
         }
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
-    },
-    {
-      "type": "movie_detail",
-      "method": "GET",
-      "url": "/Items/{id}?api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "mapping": {
-          "id": "Id",
-          "title": "Name",
-          "overview": "Overview",
-          "tagline": "Taglines[0]",
-          "posterPath": "Id",
-          "backdropPath": "BackdropImageTags[0]",
-          "rating": "CommunityRating",
-          "genres": "Genres",
-          "releaseDate": "PremiereDate",
-          "runtime": "RunTimeTicks"
-        }
-      },
-      "posterBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}",
-      "backdropBaseUrl": "http://{server}/Items/{id}/Images/Backdrop?api_key={apiKey}"
-    },
-    {
-      "type": "series_detail",
-      "method": "GET",
-      "url": "/Items/{id}?api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "mapping": {
-          "id": "Id",
-          "title": "Name",
-          "overview": "Overview",
-          "posterPath": "Id",
-          "backdropPath": "BackdropImageTags[0]",
-          "rating": "CommunityRating",
-          "genres": "Genres",
-          "numberOfSeasons": "SeasonCount",
-          "episodeRunTime": "RunTimeTicks"
-        }
-      },
-      "posterBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}",
-      "backdropBaseUrl": "http://{server}/Items/{id}/Images/Backdrop?api_key={apiKey}"
-    },
-    {
-      "type": "series_episodes_detail",
-      "method": "GET",
-      "url": "/Shows/{series_id}/Seasons/{season_number}?UserId={userId}&api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "itemsKey": "Items",
-        "episodeMapping": {
-          "id": "Id",
-          "name": "Name",
-          "overview": "Overview",
-          "airDate": "PremiereDate",
-          "episodeNumber": "IndexNumber",
-          "seasonNumber": "ParentIndexNumber",
-          "stillPath": "Id",
-          "rating": "CommunityRating"
-        }
-      },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
-    },
-    {
-      "name": "{searchMovies}",
-      "type": "search_movies",
-      "mediaType": "movie",
-      "method": "GET",
-      "url": "/Search/Hints?SearchTerm={query}&IncludeItemTypes=Movie&UserId={userId}&api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "itemsKey": "SearchHints",
-        "mapping": {
-          "id": "ItemId",
-          "title": "Name",
-          "poster": "ItemId"
-        }
-      },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
-    },
-    {
-      "name": "{searchSeries}",
-      "type": "search_series",
-      "mediaType": "series",
-      "method": "GET",
-      "url": "/Search/Hints?SearchTerm={query}&IncludeItemTypes=Series&UserId={userId}&api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "itemsKey": "SearchHints",
-        "mapping": {
-          "id": "ItemId",
-          "title": "Name",
-          "poster": "ItemId"
-        }
-      },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
-    },
-    {
-      "name": "link",
-      "type": "link",
-      "method": "GET",
-      "url": "/Videos/{id}/stream?api_key={apiKey}",
-      "responseFormat": "json",
-      "response": {
-        "mapping": {
-          "link": "Url"
-        }
-      }
     }
   ]
 }
