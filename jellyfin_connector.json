@@ -1,12 +1,12 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector",
-  "version": "2025-11-23-006",
+  "version": "2025-11-23-007",
   "description": "Konektor pro přístup k Jellyfin API s volbou přihlášení nebo ručního API klíče",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-  "author": "klucon, panzerman, ChatGPT",
+  "author": "klucon, panzerman",
   "baseUrl": "http://{server}",
   "responseFormat": "json",
 
@@ -52,7 +52,7 @@
         "url": "/Users/AuthenticateByName",
         "body": {
           "Username": "{username}",
-          "Pw": "{password}"
+          "Password": "{password}"
         },
         "response": {
           "store": {
@@ -114,3 +114,4 @@
     }
   ]
 }
+
