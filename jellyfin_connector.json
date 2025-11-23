@@ -1,12 +1,12 @@
 {
   "id": "jellyfin",
-  "name": "Jellyfin Connector",
-  "version": "2025.11.23.12",
+  "name": "Jellyfin",
+  "version": "2025.11.23.14",
   "description": "Kompletní konektor pro přístup k Jellyfin API s detaily, seznamy a streamem. Používá standardní Jellyfin autentizaci.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-  "author": "klucon, panzerman",
+  "author": "panzerman",
   "baseUrl": "http://{server}", 
   "responseFormat": "json",
 
@@ -19,28 +19,28 @@
     },
     "useLogin": {
       "type": "boolean",
-      "label": "Použít přihlášení (username + heslo)?",
+      "label": "Použít přihlášení (formulář)?",
       "default": true
     },
     "username": {
       "type": "string",
       "label": "Uživatelské jméno",
-      "required": false
+      "required": true
     },
     "password": {
       "type": "string",
       "label": "Heslo",
-      "required": false
+      "required": true
     },
     "apiKey": {
       "type": "string",
       "label": "API klíč (pokud nechceš používat login)",
-      "required": false
+      "required": true
     },
     "userId": {
       "type": "string",
       "label": "ID uživatele (nutné pro API klíč)",
-      "required": false
+      "required": true
     }
   },
 
