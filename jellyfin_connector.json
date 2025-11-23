@@ -1,12 +1,12 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector (Salt Auth)",
-  "version": "2025.11.23.23",
+  "version": "2025.11.23.24",
   "description": "Konektor s dvoufázovou autentizací (Salt + Hash) dle požadavku pro Streamlet.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-  "author": "klucon, panzerman",
+  "author": "panzerman",
   "baseUrl": "http://{server}",
   "responseFormat": "json",
 
@@ -196,3 +196,4 @@
     }
   ]
 }
+
