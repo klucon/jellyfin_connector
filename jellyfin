@@ -1,7 +1,7 @@
 {
   "id":"jellyfin",
   "name":"Jellyfin",
-  "version":"2025-11-23-1",
+  "version":"2025-11-23-2",
   "description":"Jellyfin",
   "media":[
     "movies",
@@ -22,11 +22,6 @@
       "label":"Jellyfin Server (IP/URL)",
       "placeholder":"192.168.0.100:8096",
       "required":true
-    },
-    "useLogin":{
-      "type":"boolean",
-      "label":"Použít přihlášení (username + heslo)?",
-      "default":true
     },
     "username":{
       "type":"string",
