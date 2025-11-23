@@ -1,13 +1,13 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector",
-  "version": "2025-11-23-008",
-  "description": "Kompletní konektor pro přístup k Jellyfin API s detaily, seznamy a streamem.",
+  "version": "2025-11-23-009",
+  "description": "Kompletní konektor pro přístup k Jellyfin API s detaily, seznamy a streamem. Používá standardní Jellyfin autentizaci.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
   "author": "klucon, panzerman",
-  "baseUrl": "http://{server}/Users",
+  "baseUrl": "http://{server}", 
   "responseFormat": "json",
 
   "config": {
@@ -52,28 +52,9 @@
     "enabledIf": "{useLogin}",
     "steps": [
       {
-        "name": "salt",
-        "method": "POST",
-        "url": "/salt/",
-        "body": {
-          "username_or_email": "{username}"
-        },
-        "response": {
-          "storeAs": "salt",
-          "path": "response.salt",
-          "status": {
-            "path": "response.code",
-            "states": {
-              "ok": "OK",
-              "userNotFound": "SALT_FATAL_1"
-            }
-          }
-        }
-      },
-      {
         "name": "login",
         "method": "POST",
-        "url": "/AuthenticateByName",
+        "url": "/Users/AuthenticateByName",
         "body": {
           "Username": "{username}",
           "Password": "{password}"
@@ -103,7 +84,7 @@
       "mediaType": "movie",
       "isHome": true,
       "method": "GET",
-      "url": "/{userId}/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
+      "url": "/Users/{userId}/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -122,7 +103,7 @@
       "mediaType": "series",
       "isHome": true,
       "method": "GET",
-      "url": "/{userId}/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
+      "url": "/Users/{userId}/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -140,7 +121,7 @@
       "type": "details",
       "mediaType": "movie",
       "method": "GET",
-      "url": "http://{server}/Items/{id}?api_key={apiKey}",
+      "url": "/Items/{id}?api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "mapping": {
@@ -160,7 +141,7 @@
       "type": "details",
       "mediaType": "series",
       "method": "GET",
-      "url": "http://{server}/Items/{id}?api_key={apiKey}",
+      "url": "/Items/{id}?api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "mapping": {
@@ -179,7 +160,7 @@
       "type": "episodes",
       "mediaType": "series",
       "method": "GET",
-      "url": "/{userId}/Items?IncludeItemTypes=Episode&ParentId={id}&SortBy=SortName&SortOrder=Ascending&Recursive=true&api_key={apiKey}",
+      "url": "/Users/{userId}/Items?IncludeItemTypes=Episode&ParentId={id}&SortBy=SortName&SortOrder=Ascending&Recursive=true&api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -197,7 +178,7 @@
       "name": "stream",
       "type": "stream",
       "method": "GET",
-      "url": "http://{server}/Items/{id}/PlaybackInfo?api_key={apiKey}",
+      "url": "/Items/{id}/PlaybackInfo?api_key={apiKey}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "MediaSources",
