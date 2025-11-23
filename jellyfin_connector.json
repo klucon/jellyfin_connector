@@ -1,7 +1,7 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector",
-  "version": "2025-11-23-11",
+  "version": "2025.11.23.12",
   "description": "Kompletní konektor pro přístup k Jellyfin API s detaily, seznamy a streamem. Používá standardní Jellyfin autentizaci.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
@@ -189,5 +189,6 @@
     }
   ]
 }
+
 
 
