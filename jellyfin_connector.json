@@ -1,16 +1,13 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector",
-  "version": "2025-11-23-004",
+  "version": "2025-11-23-005",
   "description": "Konektor pro přístup k Jellyfin API",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-
   "baseUrl": "http://{server}",
-
   "responseFormat": "json",
-
   "config": {
     "server": {
       "type": "string",
@@ -29,11 +26,9 @@
       "required": true
     }
   },
-
   "headers": {
     "X-Emby-Authorization": "MediaBrowser Client=\"Streamlet\", Device=\"Streamlet\", DeviceId=\"streamlet01\", Version=\"1.0.0\""
   },
-
   "auth": {
     "type": "dynamic",
     "method": "POST",
@@ -50,12 +45,7 @@
     },
     "save": ["apiKey", "userId"]
   },
-
   "api": [
-
-    /* =====================
-       MOVIES - catalogue
-    ====================== */
     {
       "name": "{movies}",
       "type": "catalogue_movies",
@@ -75,10 +65,6 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
-
-    /* =====================
-       SERIES - catalogue
-    ====================== */
     {
       "name": "{series}",
       "type": "catalogue_series",
@@ -98,10 +84,6 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
-
-    /* =====================
-       MOVIE DETAIL
-    ====================== */
     {
       "type": "movie_detail",
       "method": "GET",
@@ -124,10 +106,6 @@
       "posterBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}",
       "backdropBaseUrl": "http://{server}/Items/{id}/Images/Backdrop?api_key={apiKey}"
     },
-
-    /* =====================
-       SERIES DETAIL
-    ====================== */
     {
       "type": "series_detail",
       "method": "GET",
@@ -142,16 +120,13 @@
           "backdropPath": "BackdropImageTags[0]",
           "rating": "CommunityRating",
           "genres": "Genres",
-          "numberOfSeasons": "SeasonCount"
+          "numberOfSeasons": "SeasonCount",
+          "episodeRunTime": "RunTimeTicks"
         }
       },
       "posterBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}",
       "backdropBaseUrl": "http://{server}/Items/{id}/Images/Backdrop?api_key={apiKey}"
     },
-
-    /* =====================
-       EPISODES
-    ====================== */
     {
       "type": "series_episodes_detail",
       "method": "GET",
@@ -172,10 +147,6 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
-
-    /* =====================
-       SEARCH MOVIES
-    ====================== */
     {
       "name": "{searchMovies}",
       "type": "search_movies",
@@ -193,10 +164,6 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
-
-    /* =====================
-       SEARCH SERIES
-    ====================== */
     {
       "name": "{searchSeries}",
       "type": "search_series",
@@ -214,10 +181,6 @@
       },
       "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
     },
-
-    /* =====================
-       STREAM LINK
-    ====================== */
     {
       "name": "link",
       "type": "link",
