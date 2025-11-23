@@ -1,13 +1,13 @@
 {
   "id": "jellyfin",
-  "name": "Jellyfin",
-  "version": "2025.11.23.14",
-  "description": "Kompletní konektor pro přístup k Jellyfin API s detaily, seznamy a streamem. Používá standardní Jellyfin autentizaci.",
+  "name": "Jellyfin Connector (Salt Auth)",
+  "version": "2025.11.23.20",
+  "description": "Konektor s dvoufázovou autentizací (Salt + Hash) dle požadavku pro Streamlet.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
   "website": "https://github.com/klucon/jellyfin_connector",
-  "author": "panzerman",
-  "baseUrl": "http://{server}", 
+  "author": "klucon, panzerman",
+  "baseUrl": "http://{server}",
   "responseFormat": "json",
 
   "config": {
@@ -19,7 +19,7 @@
     },
     "useLogin": {
       "type": "boolean",
-      "label": "Použít přihlášení (formulář)?",
+      "label": "Použít přihlášení (username + heslo)?",
       "default": true
     },
     "username": {
@@ -30,16 +30,6 @@
     "password": {
       "type": "string",
       "label": "Heslo",
-      "required": true
-    },
-    "apiKey": {
-      "type": "string",
-      "label": "API klíč (pokud nechceš používat login)",
-      "required": true
-    },
-    "userId": {
-      "type": "string",
-      "label": "ID uživatele (nutné pro API klíč)",
       "required": true
     }
   },
@@ -52,29 +42,45 @@
     "enabledIf": "{useLogin}",
     "steps": [
       {
-        "name": "login",
+        "name": "salt",
         "method": "POST",
-        "url": "/Users/AuthenticateByName",
+        "url": "/salt/",
         "body": {
-          "Username": "{username}",
-          "Password": "{password}"
+          "username_or_email": "{username}"
         },
         "response": {
-          "store": {
-            "apiKey": "AccessToken",
-            "userId": "User.Id"
-          },
+          "storeAs": "salt",
+          "path": "response.salt",
           "status": {
-            "path": "AccessToken",
+            "path": "response.code",
             "states": {
               "ok": "OK",
-              "error": "LOGIN_FAILED"
+              "userNotFound": "SALT_FATAL_1"
+            }
+          }
+        }
+      },
+      {
+        "name": "login",
+        "method": "POST",
+        "url": "/login/",
+        "body": {
+          "username_or_email": "{username}",
+          "password": "sha1(md5_crypt({password}, {salt}))",
+          "keep_logged_in": "1"
+        },
+        "response": {
+          "tokenPath": "response.token",
+          "status": {
+            "path": "response.code",
+            "states": {
+              "autherror": "LOGIN_FATAL_1"
             }
           }
         }
       }
     ],
-    "storeTokenAs": "apiKey"
+    "storeTokenAs": "authToken"
   },
 
   "api": [
@@ -84,7 +90,8 @@
       "mediaType": "movie",
       "isHome": true,
       "method": "GET",
-      "url": "/Users/{userId}/Items?IncludeItemTypes=Movie&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
+      // API call je upravena, aby nepoužívala {userId} a místo {apiKey} používá {authToken}
+      "url": "/Items?IncludeItemTypes=Movie&Recursive=true&StartIndex={offset}&Limit=40&api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -95,15 +102,17 @@
           "poster": "Id"
         }
       },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
+      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={authToken}"
     },
+
     {
       "name": "series",
       "type": "catalogue_series",
       "mediaType": "series",
       "isHome": true,
       "method": "GET",
-      "url": "/Users/{userId}/Items?IncludeItemTypes=Series&Recursive=true&SortBy=DateCreated&SortOrder=Descending&StartIndex={offset}&Limit=40&api_key={apiKey}",
+      // API call je upravena, aby nepoužívala {userId} a místo {apiKey} používá {authToken}
+      "url": "/Items?IncludeItemTypes=Series&Recursive=true&StartIndex={offset}&Limit=40&api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -114,14 +123,14 @@
           "poster": "Id"
         }
       },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
+      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={authToken}"
     },
     {
       "name": "details",
       "type": "details",
       "mediaType": "movie",
       "method": "GET",
-      "url": "/Items/{id}?api_key={apiKey}",
+      "url": "/Items/{id}?api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "mapping": {
@@ -134,14 +143,14 @@
           "runtime": "RunTimeTicks"
         }
       },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
+      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={authToken}"
     },
     {
       "name": "series_details",
       "type": "details",
       "mediaType": "series",
       "method": "GET",
-      "url": "/Items/{id}?api_key={apiKey}",
+      "url": "/Items/{id}?api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "mapping": {
@@ -153,14 +162,15 @@
           "rating": "CommunityRating"
         }
       },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
+      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={authToken}"
     },
     {
       "name": "series_episodes",
       "type": "episodes",
       "mediaType": "series",
       "method": "GET",
-      "url": "/Users/{userId}/Items?IncludeItemTypes=Episode&ParentId={id}&SortBy=SortName&SortOrder=Ascending&Recursive=true&api_key={apiKey}",
+      // Musí být upraveno, protože chybí {userId}
+      "url": "/Items?IncludeItemTypes=Episode&ParentId={id}&SortBy=SortName&SortOrder=Ascending&Recursive=true&api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "Items",
@@ -172,13 +182,13 @@
           "season": "ParentIndexNumber"
         }
       },
-      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={apiKey}"
+      "imageBaseUrl": "http://{server}/Items/{id}/Images/Primary?api_key={authToken}"
     },
     {
       "name": "stream",
       "type": "stream",
       "method": "GET",
-      "url": "/Items/{id}/PlaybackInfo?api_key={apiKey}",
+      "url": "/Items/{id}/PlaybackInfo?api_key={authToken}",
       "responseFormat": "json",
       "response": {
         "itemsKey": "MediaSources",
@@ -189,6 +199,3 @@
     }
   ]
 }
-
-
-
