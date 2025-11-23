@@ -1,13 +1,13 @@
 {
   "id": "connector",
-  "media": ["movies", "series"],
+  "media": ["movies", "series", "music"],
   "type": ["catalogues", "details", "stream"],
-  "name": "Connector",
-  "website": "https://www.streamlet.info/",
-  "repository": "https://streamlet.info/repo_v3/connector.json",
-  "author": "Haluška",
-  "version": "0.9.2",
-  "description": "Streamled Connector metadata and stream parser for movies and series.",
+  "name": "Jellyfin Connector API",
+  "website": "https://github.com/klucon/jellyfin_connector",
+  "repository": "https://github.com/klucon/jellyfin_connector/jellyfin_connector.json",
+  "author": "klucon, panzerman",
+  "version": "2025-11-23-002",
+  "description": "Konektor na připojení Jellyfin přes API",
   "baseUrl": "http://{server}/api",
   "responseFormat": "json",
   "config": {
@@ -225,4 +225,5 @@
       }
     }
   ]
+
 }
