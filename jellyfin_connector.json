@@ -1,7 +1,7 @@
 {
   "id": "jellyfin",
   "name": "Jellyfin Connector (Salt Auth)",
-  "version": "2025.11.23.20",
+  "version": "2025.11.23.23",
   "description": "Konektor s dvoufázovou autentizací (Salt + Hash) dle požadavku pro Streamlet.",
   "media": ["movies", "series"],
   "type": ["catalogues", "details", "stream"],
@@ -90,7 +90,6 @@
       "mediaType": "movie",
       "isHome": true,
       "method": "GET",
-      // API call je upravena, aby nepoužívala {userId} a místo {apiKey} používá {authToken}
       "url": "/Items?IncludeItemTypes=Movie&Recursive=true&StartIndex={offset}&Limit=40&api_key={authToken}",
       "responseFormat": "json",
       "response": {
@@ -111,7 +110,6 @@
       "mediaType": "series",
       "isHome": true,
       "method": "GET",
-      // API call je upravena, aby nepoužívala {userId} a místo {apiKey} používá {authToken}
       "url": "/Items?IncludeItemTypes=Series&Recursive=true&StartIndex={offset}&Limit=40&api_key={authToken}",
       "responseFormat": "json",
       "response": {
@@ -169,7 +167,6 @@
       "type": "episodes",
       "mediaType": "series",
       "method": "GET",
-      // Musí být upraveno, protože chybí {userId}
       "url": "/Items?IncludeItemTypes=Episode&ParentId={id}&SortBy=SortName&SortOrder=Ascending&Recursive=true&api_key={authToken}",
       "responseFormat": "json",
       "response": {
